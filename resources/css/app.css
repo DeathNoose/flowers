@@ -1,0 +1,38 @@
+@import 'tailwindcss';
+
+/* Famile Flowers - Стили для магазина цветов */
+/* Основные цвета */
+:root {
+    /* Основные цвета */
+    --bg-dark: #201B21;      /* Основной фон (меню, футер) */
+    --bg-darker: #0A0A0A;    /* Черный фон (основной фон сайта) */
+    --bg-card: #111111;       /* Фон карточек */
+    
+    /* Акцентные цвета */
+    --gold: #BF953F;          /* Золотой (акценты, кнопки) */
+    --gold-light: #D4AF6A;    /* Светлое золото (хобверы) */
+    --gold-dark: #9B7B3C;     /* Темное золото (активные состояния) */
+    
+    /* Текст */
+    --text-primary: #FFFFFF;   /* Белый (основной текст) */
+    --text-secondary: #E0E0E0; /* Светло-серый (второстепенный текст) */
+    --text-muted: #9CA3AF;     /* Серый (подписи) */
+    
+    /* Дополнительные акценты */
+    --accent-burgundy: #8B3C3C; /* Бордовый (для скидок, акций) */
+    --accent-green: #4A7C59;    /* Темно-зеленый (для статуса "в наличии") */
+    --accent-red: #B91C1C;      /* Красный (для ошибок, "нет в наличии") */
+}
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

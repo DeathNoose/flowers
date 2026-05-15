@@ -1,0 +1,20 @@
+﻿@import "tailwindcss";
+
+/* Кастомная тема */
+@theme {
+  --color-primary: #ff69b4;
+  --color-secondary: #4caf50;
+  --font-family-display: "Pacifico", cursive;
+}
+
+/* Кастомные утилиты */
+@utility btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+
+@utility btn-primary:hover {
+  background-color: #ff1493;
+}
