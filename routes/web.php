@@ -15,6 +15,8 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\PromocodeController;
@@ -66,7 +68,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 Route::get('/contacts', [ContactController::class, 'index'])->name('contacts');
 Route::post('/contacts/send', [ContactController::class, 'send'])->name('contacts.send');
 
-
+Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
 // Доставка
 Route::get('/delivery', [DeliveryController::class, 'index'])->name('delivery');
@@ -101,7 +104,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::post('/users/{user}/make-admin', [UserController::class, 'makeAdmin'])->name('users.make-admin');
     Route::post('/users/{user}/remove-admin', [UserController::class, 'removeAdmin'])->name('users.remove-admin');
-});
+
+     // Управление отзывами 
+    Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+    Route::get('/reviews/{review}', [AdminReviewController::class, 'show'])->name('reviews.show');
+    Route::post('/reviews/{review}/approve', [AdminReviewController::class, 'approve'])->name('reviews.approve');
+    Route::post('/reviews/{review}/disapprove', [AdminReviewController::class, 'disapprove'])->name('reviews.disapprove');
+    Route::post('/reviews/{review}/response', [AdminReviewController::class, 'response'])->name('reviews.response');
+    Route::delete('/reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    });
 
 
 
@@ -154,3 +166,4 @@ Route::get('/image/{path}', function ($path) {
     }
     return abort(404);
 })->where('path', '.*');
+

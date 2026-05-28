@@ -28,7 +28,7 @@
             <div style="text-align: center; margin-bottom: 56px;">
                 <span style="color: #D26F8B; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;">Почему мы</span>
                 <h2 style="font-size: 2.2rem; font-weight: 700; margin-top: 12px; color: #1A1A1A;">
-                    FAMILE FLOWERS — <span style="color: #D26F8B;">это доверие</span>
+                    Family Flowers — <span style="color: #D26F8B;">это доверие</span>
                 </h2>
                 <div style="width: 60px; height: 3px; background: #D26F8B; margin: 20px auto 0;"></div>
             </div>

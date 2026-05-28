@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>FAMILE FLOWERS - @yield('title', 'Цветы премиум-класса')</title>
+    <title>Family Flowers - @yield('title', 'Цветы премиум-класса')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -400,13 +400,14 @@
                     <img src="{{ asset('img/logo.png') }}" alt="FAMILE FLOWERS" 
                         style="height: 60px; width: auto;">
                     <span style="font-size: 1.8rem; font-weight: 800; color: #D26F8B; letter-spacing: -0.5px;">
-                        FAMILE FLOWERS
+                        Family Flowers
                     </span>
                 </a>
                 <nav class="nav-menu">
                     <a href="{{ route('catalog.index') }}" class="nav-link">Каталог</a>
                     <a href="{{ route('delivery') }}" class="nav-link">Доставка</a>
                     <a href="{{ route('contacts') }}" class="nav-link">Контакты</a>
+                    <a href="{{ route('reviews.index') }}" class="nav-link">Отзывы</a>
                 </nav>
                 
                 <div class="flex items-center gap-4">
@@ -479,6 +480,12 @@
                                         </svg>
                                         Пользователи
                                     </a>
+                                    <a href="{{ route('admin.reviews.index') }}" class="dropdown-item">
+                                    <svg fill="none" width="18" height="18" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                                    </svg>
+                                    Отзывы
+                                </a>
                                 @endif
                                 
                                 <div class="dropdown-divider"></div>
@@ -534,7 +541,7 @@
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
                         <div>
                         </div>
-                        <span style="font-size: 1.3rem; font-weight: 700; color: #FFFFFF;">FAMILE FLOWERS</span>
+                        <span style="font-size: 1.3rem; font-weight: 700; color: #FFFFFF;">Family Flowers</span>
                     </div>
                     <p style="color: #AAAAAA; font-size: 0.875rem; line-height: 1.6;">
                         Удовольствие от хорошего качества длится дольше, чем радость от низкой цены.
@@ -575,7 +582,7 @@
             
             <div style="margin-top: 32px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.08);">
                 <div style="text-align: center; color: #666666; font-size: 0.75rem;">
-                    <p>&copy; 2026 FAMILE FLOWERS. Цветы с любовью.</p>
+                    <p>&copy; 2026 Family Flowers. Цветы с любовью.</p>
                 </div>
             </div>
         </div>

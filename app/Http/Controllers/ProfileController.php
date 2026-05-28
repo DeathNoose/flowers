@@ -12,7 +12,8 @@ class ProfileController extends Controller
     public function index()
     {
         $user = auth()->user();
-        // Получаем заказы только текущего пользователя
+        
+        // Получаем заказы пользователя
         $orders = Order::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -36,14 +37,6 @@ class ProfileController extends Controller
             'address' => 'nullable|string|max:500',
             'current_password' => 'required_with:new_password',
             'new_password' => 'nullable|string|min:6|confirmed',
-        ], [
-            'name.required' => 'Пожалуйста, укажите ваше имя',
-            'name.regex' => 'Имя может содержать только буквы, пробелы и дефисы',
-            'phone.required' => 'Пожалуйста, укажите номер телефона',
-            'phone.regex' => 'Введите номер в формате +7 (999) 123-45-67',
-            'current_password.required_with' => 'Введите текущий пароль для смены пароля',
-            'new_password.min' => 'Новый пароль должен содержать минимум 6 символов',
-            'new_password.confirmed' => 'Новые пароли не совпадают',
         ]);
 
         if ($validator->fails()) {
@@ -69,6 +62,4 @@ class ProfileController extends Controller
 
         return redirect()->route('profile.index')->with('success', 'Профиль успешно обновлен');
     }
-
-    
 }

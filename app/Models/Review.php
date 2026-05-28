@@ -3,33 +3,34 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Review extends Model
 {
     protected $fillable = [
-        'product_id', 'user_id', 'order_id', 'rating',
-        'title', 'comment', 'images', 'is_approved',
-        'helpful_count', 'unhelpful_count', 'admin_response', 'admin_response_at'
+        'user_id',
+        'author_name',
+        'author_email',
+        'rating',
+        'comment',
+        'response',
+        'is_approved',
+        'is_visible',
     ];
-    
+
     protected $casts = [
-        'images' => 'array',
+        'rating' => 'integer',
         'is_approved' => 'boolean',
-        'admin_response_at' => 'datetime'
+        'is_visible' => 'boolean',
     ];
-    
-    public function product()
-    {
-        return $this->belongsTo(Flower::class, 'product_id');
-    }
-    
-    public function user()
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-    
-    public function helpful()
+
+    public function isApproved(): bool
     {
-        return $this->hasMany(ReviewHelpful::class);
+        return $this->is_approved && $this->is_visible;
     }
 }
