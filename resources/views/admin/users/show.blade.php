@@ -69,16 +69,7 @@
                 @endif
             </div>
             
-            @if($user->orders()->count() > 0)
-                <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #F0E4E8;">
-                    <h3 style="font-weight: 600; margin-bottom: 12px; color: #1A1A1A;">История заказов</h3>
-                    <p style="color: #666666; font-size: 0.875rem;">Всего заказов: {{ $user->orders()->count() }}</p>
-                    <a href="#" style="color: #D26F8B; text-decoration: none; font-size: 0.875rem;">Просмотреть все заказы →</a>
-                </div>
-            @endif
-        </div>
-    </div>
-</div>
+
 
 <style>
     .container {

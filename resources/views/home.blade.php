@@ -3,37 +3,40 @@
 @section('title', 'Цветы премиум-класса')
 
 @section('content')
-    <!-- Hero секция -->
-    <section style="min-height: 85vh; display: flex; align-items: center; justify-content: center; background-image: url('{{ asset('img/Баннер.jpg') }}'); background-size: cover; background-position: center center; background-repeat: no-repeat;">
-        <div class="container text-center" style="background: rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 40px 20px; backdrop-filter: blur(3px);">
-            <h1 style="font-size: clamp(2.8rem, 8vw, 5.5rem); font-weight: 800; margin-bottom: 24px; color: #FFFFFF; line-height: 1.2;">
+    <!-- Hero секция (без отступа от шапки) -->
+<!-- Hero секция (без отступа от шапки, с идеальным центрированием) -->
+<section style="min-height: calc(100vh - 80px); display: flex; align-items: center; justify-content: center; background-image: url('{{ asset('img/Баннер.jpg') }}'); background-size: cover; background-position: center center; background-repeat: no-repeat; margin-top: -90px; padding-top: 90px;">
+    <div class="container" style="width: 100%;">
+        <div style="max-width: 800px; margin: 0 auto; background: rgba(0, 0, 0, 0.55); border-radius: 24px; padding: 60px 40px; backdrop-filter: blur(4px); text-align: center;">
+            <h1 style="font-size: clamp(2rem, 6vw, 5rem); font-weight: 800; margin-bottom: 24px; color: #FFFFFF; line-height: 1.2;">
                 Цветы <span style="color: #FFB6C1; position: relative; display: inline-block;">премиум-класса
                     <span style="position: absolute; bottom: 8px; left: 0; right: 0; height: 12px; background: rgba(255, 182, 193, 0.3); border-radius: 10px; z-index: -1;"></span>
                 </span>
             </h1>
-            <p style="font-size: clamp(1.1rem, 4vw, 1.3rem); margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; color: #F0F0F0; line-height: 1.6; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
-                Атмосферные композиции для тех, кто ценит качество и стиль
+            <p style="font-size: clamp(1rem, 4vw, 1.3rem); margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; color: #F5F5F5; line-height: 1.6; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
+                Удовольствие от хорошего качества длится дольше, чем радость от низкой цены.
             </p>
             <div>
-                <a href="{{ route('catalog.index') }}" class="btn-primary" style="display: inline-block; font-size: 1.1rem; padding: 14px 40px; background: #D26F8B; color: white; text-decoration: none; border-radius: 50px; transition: all 0.3s ease;">
+                <a href="{{ route('catalog.index') }}" class="btn-primary" style="display: inline-block; font-size: 1.1rem; padding: 14px 40px; background: #D26F8B; color: white; text-decoration: none; border-radius: 50px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(210, 111, 139, 0.4);">
                     Смотреть букеты →
                 </a>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- Преимущества -->
     <section style="padding: 80px 0; background: #FFFFFF;">
         <div class="container">
             <div style="text-align: center; margin-bottom: 56px;">
                 <span style="color: #D26F8B; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;">Почему мы</span>
-                <h2 style="font-size: 2.2rem; font-weight: 700; margin-top: 12px; color: #1A1A1A;">
+                <h2 style="font-size: clamp(1.6rem, 5vw, 2.2rem); font-weight: 700; margin-top: 12px; color: #1A1A1A;">
                     Family Flowers — <span style="color: #D26F8B;">это доверие</span>
                 </h2>
                 <div style="width: 60px; height: 3px; background: #D26F8B; margin: 20px auto 0;"></div>
             </div>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px;">
                 <div style="text-align: center; padding: 32px 24px; background: #FAF8F9; border-radius: 20px; transition: all 0.3s ease; border: 1px solid #F0E4E8;">
                     <div style="width: 70px; height: 70px; background: #D26F8B; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
                         <svg style="width: 32px; height: 32px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,13 +77,12 @@
         <div class="container">
             <div style="text-align: center; margin-bottom: 56px;">
                 <span style="color: #D26F8B; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;">Коллекция</span>
-                <h2 style="font-size: 2.2rem; font-weight: 700; margin-top: 12px; color: #1A1A1A;">
+                <h2 style="font-size: clamp(1.6rem, 5vw, 2.2rem); font-weight: 700; margin-top: 12px; color: #1A1A1A;">
                     Популярные <span style="color: #D26F8B;">букеты</span>
                 </h2>
-                <!-- УБРАЛ РОЗОВУЮ ПОЛОСКУ ЗДЕСЬ -->
             </div>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
                 @foreach($popularFlowers as $flower)
                 <div class="product-card" style="background: #FFFFFF; border-radius: 20px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06); border: 1px solid #F0E4E8;">
                     <div style="height: 280px; overflow: hidden; background: #120B0E; position: relative;">
@@ -92,7 +94,7 @@
                     <div style="padding: 24px;">
                         <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; color: #1A1A1A; transition: color 0.3s;">{{ $flower->name }}</h3>
                         <p style="color: #777777; font-size: 0.85rem; margin-bottom: 20px; line-height: 1.5;">{{ Str::limit($flower->description, 65) }}</p>
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F0E4E8; padding-top: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F0E4E8; padding-top: 16px; flex-wrap: wrap; gap: 12px;">
                             <span style="font-size: 1.6rem; font-weight: 800; color: #D26F8B;">{{ number_format($flower->price, 0, ',', ' ') }} ₽</span>
                             <form action="{{ route('cart.add', $flower) }}" method="POST">
                                 @csrf
@@ -120,51 +122,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Рекомендации для авторизованных пользователей -->
-    @auth
-        @if(isset($recommendations) && $recommendations->count() > 0)
-        <section style="padding: 60px 0; background: #FAF8F9;">
-            <div class="container">
-                <div style="text-align: center; margin-bottom: 40px;">
-                    <h2 style="font-size: 2rem; font-weight: bold; color: #1A1A1A;">
-                        Для вас <span style="color: #D26F8B;">рекомендуем</span>
-                    </h2>
-                    <p style="color: #888888;">На основе ваших предыдущих заказов</p>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
-                    @foreach($recommendations as $product)
-                    <div style="background: #FFFFFF; border-radius: 20px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid #F0E4E8;">
-                        <a href="{{ route('catalog.show', $product) }}">
-                            <div style="height: 200px; overflow: hidden;">
-                                <img src="{{ App\Helpers\ImageHelper::getFlowerImage($product->image_path) }}" 
-                                     alt="{{ $product->name }}"
-                                     style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s;">
-                            </div>
-                        </a>
-                        <div style="padding: 16px;">
-                            <a href="{{ route('catalog.show', $product) }}" style="text-decoration: none;">
-                                <h3 style="font-weight: 600; margin-bottom: 8px; color: #1A1A1A;">{{ $product->name }}</h3>
-                            </a>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="color: #D26F8B; font-weight: bold;">{{ number_format($product->price, 0, ',', ' ') }} ₽</span>
-                                <form action="{{ route('cart.add', $product) }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" style="background: #D26F8B; color: white; border: none; padding: 6px 16px; border-radius: 30px; cursor: pointer; font-size: 0.75rem;">
-                                        В корзину
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-        @endif
-    @endauth
-
 @endsection
 
 <style>
@@ -178,6 +135,12 @@
     @media (max-width: 768px) {
         .container {
             padding: 0 20px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .container {
+            padding: 0 15px;
         }
     }
     
@@ -240,11 +203,5 @@
         color: #AAAAAA;
         padding: 48px 0;
         margin-top: 0;
-    }
-    
-    @media (max-width: 768px) {
-        .container {
-            padding: 0 20px;
-        }
     }
 </style>

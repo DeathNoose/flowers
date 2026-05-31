@@ -10,6 +10,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\UserController;
@@ -21,6 +23,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\PromocodeController;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Order;
+use Illuminate\Http\Request;
 
 
 
@@ -35,6 +39,15 @@ Route::post('/cart/update', [CartController::class, 'update'])->name('cart.updat
 Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
+// Страницы с документами
+Route::get('/privacy-policy', function () {
+    return view('pages.privacy-policy');
+})->name('privacy.policy');
+
+Route::get('/privacy-agreement', function () {
+    return view('pages.privacy-agreement');
+})->name('privacy.agreement');
+
 // Заказы
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('order.checkout');
 Route::post('/orders', [OrderController::class, 'store'])->name('order.store');
@@ -44,6 +57,44 @@ Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
 Route::post('/order/store', [OrderController::class, 'store'])->name('order.store');
 Route::get('/order/{order}/success', [OrderController::class, 'success'])->name('order.success');
 
+    // Восстановление пароля
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+
+    // Время доставки
+Route::get('/get-booked-time-slots', function (Request $request) {
+    $date = $request->get('date');
+    
+    $allTimeSlots = [
+        ['value' => '08:00-09:00', 'label' => '08:00 - 09:00'],
+        ['value' => '09:00-10:00', 'label' => '09:00 - 10:00'],
+        ['value' => '10:00-11:00', 'label' => '10:00 - 11:00'],
+        ['value' => '11:00-12:00', 'label' => '11:00 - 12:00'],
+        ['value' => '12:00-13:00', 'label' => '12:00 - 13:00'],
+        ['value' => '13:00-14:00', 'label' => '13:00 - 14:00'],
+        ['value' => '14:00-15:00', 'label' => '14:00 - 15:00'],
+        ['value' => '15:00-16:00', 'label' => '15:00 - 16:00'],
+        ['value' => '16:00-17:00', 'label' => '16:00 - 17:00'],
+        ['value' => '17:00-18:00', 'label' => '17:00 - 18:00'],
+        ['value' => '18:00-19:00', 'label' => '18:00 - 19:00'],
+        ['value' => '19:00-20:00', 'label' => '19:00 - 20:00'],
+        ['value' => '20:00-21:00', 'label' => '20:00 - 21:00'],
+        ['value' => '21:00-22:00', 'label' => '21:00 - 22:00'],
+    ];
+    
+    $bookedSlots = Order::where('delivery_date', $date)
+        ->where('status', '!=', 'cancelled')
+        ->whereNotNull('delivery_time')
+        ->pluck('delivery_time')
+        ->toArray();
+    
+    return response()->json([
+        'allTimeSlots' => $allTimeSlots,
+        'bookedSlots' => $bookedSlots
+    ]);
+})->name('get.booked.time.slots');
 
 
 // Админ-панель (только для администраторов)

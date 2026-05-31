@@ -20,98 +20,169 @@ class OrderController extends Controller
         $this->yooKassaService = $yooKassaService;
     }
     
-    /**
-     * Страница оформления заказа
-     */
-    public function checkout()
-    {
+public function checkout()
+{
+    $cart = session()->get('cart', []);
+    
+    if (empty($cart)) {
+        return redirect()->route('catalog.index')->with('error', 'Корзина пуста');
+    }
+    
+    $items = [];
+    $subtotal = 0;
+    
+    foreach ($cart as $id => $details) {
+        $itemTotal = $details['price'] * $details['quantity'];
+        $items[] = [
+            'id' => $id,
+            'name' => $details['name'],
+            'quantity' => $details['quantity'],
+            'price' => $details['price'],
+            'total' => $itemTotal,
+        ];
+        $subtotal += $itemTotal;
+    }
+    
+    $discount = session('discount', 0);
+    $total = max(0, $subtotal - $discount);
+    $appliedPromocode = session('applied_promocode');
+    
+    // Все возможные интервалы
+    $allTimeSlots = [
+        '08:00-09:00' => '08:00 - 09:00',
+        '09:00-10:00' => '09:00 - 10:00',
+        '10:00-11:00' => '10:00 - 11:00',
+        '11:00-12:00' => '11:00 - 12:00',
+        '12:00-13:00' => '12:00 - 13:00',
+        '13:00-14:00' => '13:00 - 14:00',
+        '14:00-15:00' => '14:00 - 15:00',
+        '15:00-16:00' => '15:00 - 16:00',
+        '16:00-17:00' => '16:00 - 17:00',
+        '17:00-18:00' => '17:00 - 18:00',
+        '18:00-19:00' => '18:00 - 19:00',
+        '19:00-20:00' => '19:00 - 20:00',
+        '20:00-21:00' => '20:00 - 21:00',
+        '21:00-22:00' => '21:00 - 22:00',
+    ];
+    
+    // Получаем занятые интервалы на выбранную дату
+    $selectedDate = old('delivery_date', date('Y-m-d'));
+    
+    // ИСПРАВЛЕНО: используем поле delivery_time вместо delivery_time_from и delivery_time_to
+    $bookedSlots = Order::where('delivery_date', $selectedDate)
+        ->where('status', '!=', 'cancelled')
+        ->whereNotNull('delivery_time')
+        ->get()
+        ->map(function($order) {
+            return $order->delivery_time;
+        })
+        ->toArray();
+    
+    return view('checkout', compact('items', 'subtotal', 'total', 'discount', 'appliedPromocode', 'allTimeSlots', 'bookedSlots', 'selectedDate'));
+}
+    
+public function store(Request $request)
+{
+    try {
+        $request->validate([
+            'customer_name' => 'required|string|max:255|regex:/^[а-яА-ЯёЁa-zA-Z\s\-]+$/u',
+            'phone' => 'required|string|max:20',
+            'city' => 'required|string|max:255',
+            'street' => 'required|string|max:255',
+            'house' => 'required|string|max:50',
+            'apartment' => 'required|string|max:20',
+            'entrance' => 'required|string|max:10',
+            'floor' => 'required|string|max:10',
+            'door_code' => 'nullable|string|max:20',
+            'address_comment' => 'nullable|string|max:500',
+            'delivery_date' => 'required|date|after_or_equal:today',
+            'delivery_time' => 'required|string',
+            'comment' => 'nullable|string|max:1000',
+        ], [
+            'customer_name.required' => 'Пожалуйста, укажите ваше имя',
+            'customer_name.regex' => 'Имя может содержать только буквы, пробелы и дефисы',
+            'phone.required' => 'Пожалуйста, укажите номер телефона',
+            'city.required' => 'Пожалуйста, укажите город',
+            'street.required' => 'Пожалуйста, укажите улицу',
+            'house.required' => 'Пожалуйста, укажите номер дома',
+            'apartment.required' => 'Пожалуйста, укажите квартиру/офис',
+            'entrance.required' => 'Пожалуйста, укажите подъезд',
+            'floor.required' => 'Пожалуйста, укажите этаж',
+            'delivery_date.required' => 'Пожалуйста, выберите дату доставки',
+            'delivery_date.after_or_equal' => 'Дата доставки не может быть раньше сегодняшнего дня',
+            'delivery_time.required' => 'Пожалуйста, выберите время доставки',
+        ]);
+        
         $cart = session()->get('cart', []);
         
         if (empty($cart)) {
             return redirect()->route('catalog.index')->with('error', 'Корзина пуста');
         }
         
-        $items = [];
-        $subtotal = 0;
+        DB::beginTransaction();
         
-        foreach ($cart as $id => $details) {
-            $itemTotal = $details['price'] * $details['quantity'];
-            $items[] = [
-                'id' => $id,
-                'name' => $details['name'],
-                'quantity' => $details['quantity'],
-                'price' => $details['price'],
-                'total' => $itemTotal,
-            ];
-            $subtotal += $itemTotal;
+        $cleanPhone = preg_replace('/[^0-9]/', '', $request->phone);
+        if (strlen($cleanPhone) === 10) {
+            $cleanPhone = '7' . $cleanPhone;
         }
         
-        // Получаем примененный промокод
-        $discount = session('discount', 0);
-        $total = max(0, $subtotal - $discount);
-        $appliedPromocode = session('applied_promocode');
+        $fullAddress = $request->city . ', ' . $request->street . ', д. ' . $request->house;
+        if ($request->apartment) {
+            $fullAddress .= ', кв. ' . $request->apartment;
+        }
+        if ($request->entrance) {
+            $fullAddress .= ', подъезд ' . $request->entrance;
+        }
+        if ($request->floor) {
+            $fullAddress .= ', этаж ' . $request->floor;
+        }
+        if ($request->address_comment) {
+            $fullAddress .= ' (' . $request->address_comment . ')';
+        }
         
-        return view('checkout', compact('items', 'subtotal', 'total', 'discount', 'appliedPromocode'));
-    }
-    
-    /**
-     * Сохранение заказа и перенаправление на оплату
-     */
-    public function store(Request $request)
-    {
-        try {
-            $request->validate([
-                'customer_name' => 'required|string|max:255|regex:/^[а-яА-ЯёЁa-zA-Z\s\-]+$/u',
-                'phone' => 'required|string|max:20',
-                'address' => 'required|string|max:500|min:10',
-                'comment' => 'nullable|string|max:1000',
+        $subtotal = 0;
+        foreach ($cart as $id => $details) {
+            $subtotal += $details['price'] * $details['quantity'];
+        }
+        
+        $discount = session('discount', 0);
+        $totalAmount = max(0, $subtotal - $discount);
+        
+        $order = Order::create([
+            'order_number' => 'ORD-' . strtoupper(uniqid()),
+            'user_id' => auth()->id(),
+            'customer_name' => $request->customer_name,
+            'phone' => $cleanPhone,
+            'address' => $fullAddress,
+            'city' => $request->city,
+            'street' => $request->street,
+            'house' => $request->house,
+            'entrance' => $request->entrance,
+            'door_code' => $request->door_code,
+            'floor' => $request->floor,
+            'apartment' => $request->apartment,
+            'address_comment' => $request->address_comment,
+            'delivery_date' => $request->delivery_date,
+            'delivery_time' => $request->delivery_time,  // ← СОХРАНЯЕМ ЦЕЛИКОМ
+            'comment' => $request->comment,
+            'subtotal' => $subtotal,
+            'discount_amount' => $discount,
+            'total_amount' => $totalAmount,
+            'status' => 'new',
+            'payment_status' => 'pending',
+        ]);
+        
+        
+            Log::info('Order created', [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'status' => $order->status
             ]);
             
-            $cart = session()->get('cart', []);
-            
-            if (empty($cart)) {
-                return redirect()->route('catalog.index')->with('error', 'Корзина пуста');
-            }
-            
-            DB::beginTransaction();
-            
-            // Очищаем телефон от лишних символов
-            $cleanPhone = preg_replace('/[^0-9]/', '', $request->phone);
-            if (strlen($cleanPhone) === 10) {
-                $cleanPhone = '7' . $cleanPhone;
-            }
-            
-            // Расчет суммы заказа
-            $subtotal = 0;
-            foreach ($cart as $id => $details) {
-                $subtotal += $details['price'] * $details['quantity'];
-            }
-            
-            // Получаем скидку из сессии
-            $discount = session('discount', 0);
-            $totalAmount = max(0, $subtotal - $discount);
-            
-            // Создаем заказ
-            $order = Order::create([
-                'order_number' => 'ORD-' . strtoupper(uniqid()),
-                'user_id' => auth()->id(),
-                'customer_name' => $request->customer_name,
-                'phone' => $cleanPhone,
-                'address' => $request->address,
-                'comment' => $request->comment,
-                'subtotal' => $subtotal,
-                'discount_amount' => $discount,
-                'total_amount' => $totalAmount,
-                'status' => 'new',
-                'payment_status' => 'pending',
-            ]);
-            
-            // Сохраняем информацию о промокоде
             $appliedPromocode = session('applied_promocode');
             if ($appliedPromocode && $discount > 0) {
                 $order->update(['promocode_id' => $appliedPromocode['id']]);
                 
-                // Сохраняем использование промокода
                 PromocodeUsage::create([
                     'promocode_id' => $appliedPromocode['id'],
                     'user_id' => auth()->id(),
@@ -119,14 +190,12 @@ class OrderController extends Controller
                     'discount_amount' => $discount
                 ]);
                 
-                // Увеличиваем счетчик использований промокода
                 $promocode = Promocode::find($appliedPromocode['id']);
                 if ($promocode) {
                     $promocode->increment('used_count');
                 }
             }
             
-            // Создаем позиции заказа
             foreach ($cart as $id => $details) {
                 $itemTotal = $details['price'] * $details['quantity'];
                 
@@ -140,13 +209,11 @@ class OrderController extends Controller
                 ]);
             }
             
-            // Очищаем корзину и сессию промокода
             session()->forget('cart');
             session()->forget(['applied_promocode', 'discount']);
             
             DB::commit();
             
-            // Создаем платеж через ЮKassa
             try {
                 $paymentResult = $this->yooKassaService->createPayment($order);
                 
@@ -168,18 +235,13 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Order creation failed: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
             
-            return back()->with('error', 'Ошибка: ' . $e->getMessage());
+            return back()->with('error', 'Ошибка при создании заказа: ' . $e->getMessage())->withInput();
         }
     }
     
-    /**
-     * Страница успешного оформления заказа
-     */
     public function success(Order $order)
     {
-        // Проверяем, что заказ принадлежит текущему пользователю
         if (auth()->check() && $order->user_id !== auth()->id()) {
             abort(403);
         }
@@ -187,9 +249,6 @@ class OrderController extends Controller
         return view('success', compact('order'));
     }
     
-    /**
-     * Callback после оплаты
-     */
     public function paymentCallback(Order $order, Request $request)
     {
         if (!$order->payment_id) {
@@ -201,7 +260,7 @@ class OrderController extends Controller
         
         if ($paymentInfo['success'] && $paymentInfo['paid']) {
             $order->update([
-                'status' => 'paid',
+                'status' => 'new',
                 'payment_status' => 'succeeded'
             ]);
             

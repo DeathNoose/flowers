@@ -6,27 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-   public function up(): void
-{
-    Schema::create('flowers', function (Blueprint $table) {
-        $table->id();
-        $table->string('name');
-        $table->string('slug')->unique();
-        $table->text('description');
-        $table->decimal('price', 10, 2);
-        $table->string('image_path')->nullable(); // путь к фото
-        $table->boolean('in_stock')->default(true);
-        $table->foreignId('category_id')->constrained()->onDelete('cascade');
-        $table->timestamps();
-    });
-}
+    public function up(): void
+    {
+        Schema::create('flowers', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->text('description');
+            $table->decimal('price', 10, 2);
+            $table->string('image_path')->nullable();
+            $table->integer('views_count')->default(0);  // ← добавлено
+            $table->boolean('in_stock')->default(true);
+            $table->boolean('is_popular')->default(false);  // ← добавлено
+            $table->foreignId('category_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+        });
+    }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('flowers');

@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('author_name');
             $table->string('author_email')->nullable();
             $table->integer('rating')->default(5); // 1-5 звезд
-            $table->text('comment');
+            $table->text('comment')->nullable();  //  ->nullable()
             $table->text('response')->nullable(); // ответ администратора
             $table->boolean('is_approved')->default(false); // модерация
             $table->boolean('is_visible')->default(true);

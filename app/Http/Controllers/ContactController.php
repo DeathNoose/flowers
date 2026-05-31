@@ -15,24 +15,51 @@ class ContactController extends Controller
     
     public function send(Request $request)
     {
+        // Валидация с русскими сообщениями об ошибках
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:20',
-            'message' => 'required|string|min:10|max:5000',
+            'message' => 'required|string|max:5000',  // ← ОБЯЗАТЕЛЬНОЕ поле
+            'agreement' => 'accepted',
+        ], [
+            // Русские сообщения об ошибках
+            'name.required' => 'Пожалуйста, укажите ваше имя',
+            'name.max' => 'Имя не должно превышать 255 символов',
+            'email.required' => 'Пожалуйста, укажите ваш email',
+            'email.email' => 'Введите корректный email адрес (например: name@mail.ru)',
+            'email.max' => 'Email не должен превышать 255 символов',
+            'phone.max' => 'Телефон не должен превышать 20 символов',
+            'message.required' => 'Пожалуйста, напишите ваше сообщение',
+            'message.max' => 'Сообщение не должно превышать 5000 символов',
+            'agreement.accepted' => 'Необходимо согласие на обработку персональных данных и принятие политики конфиденциальности',
         ]);
         
         try {
-            // Здесь можно отправить email или сохранить в базу данных
-            // Для примера просто сохраняем в лог
-            Log::info('Новое сообщение с сайта', $validated);
+            // Сохраняем в лог
+            Log::info('Новое сообщение с сайта', [
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'] ?? 'Не указан',
+                'message' => $validated['message'],
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
             
             // Если нужно отправить email, раскомментируйте:
             /*
-            Mail::send('emails.contact', $validated, function($message) use ($validated) {
-                $message->to('info@darkbloom.ru')
-                        ->subject('Новое сообщение с сайта от ' . $validated['name']);
-                $message->from($validated['email'], $validated['name']);
+            Mail::send([], [], function($message) use ($validated) {
+                $html = "
+                    <h2>Новое сообщение с сайта Family Flowers</h2>
+                    <p><strong>Имя:</strong> {$validated['name']}</p>
+                    <p><strong>Email:</strong> {$validated['email']}</p>
+                    <p><strong>Телефон:</strong> " . ($validated['phone'] ?? 'Не указан') . "</p>
+                    <p><strong>Сообщение:</strong> {$validated['message']}</p>
+                ";
+                
+                $message->to('family.flowers@mail.ru')
+                        ->subject('Новое сообщение с сайта от ' . $validated['name'])
+                        ->html($html);
             });
             */
             

@@ -5,18 +5,18 @@
 @section('content')
 <div class="container" style="padding: 60px 0 80px;">
     <div style="text-align: center; margin-bottom: 60px;">
-        <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 16px; color: #1A1A1A;">
+        <h1 style="font-size: clamp(2rem, 5vw, 3rem); font-weight: bold; margin-bottom: 16px; color: #1A1A1A;">
             Наш <span style="color: #D26F8B;">каталог</span>
         </h1>
-        <p style="color: #888888; font-size: 1.125rem; max-width: 600px; margin: 0 auto;">
+        <p style="color: #888888; font-size: clamp(0.95rem, 3vw, 1.125rem); max-width: 600px; margin: 0 auto;">
             Эксклюзивные композиции, созданные для ценителей качества и стиля
         </p>
     </div>
     
     <!-- Фильтры -->
     <div style="background: #FFFFFF; border-radius: 20px; padding: 24px; margin-bottom: 40px; border: 1px solid #F0E4E8; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
-        <form method="GET" action="{{ route('catalog.index') }}" id="filter-form">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; align-items: end;">
+        <form method="GET" action="{{ route('catalog.index') }}" id="filter-form" onsubmit="return validatePriceFields()">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 20px; align-items: end;">
                 <!-- Фильтр по категории -->
                 <div>
                     <label for="category" style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 8px; color: #4A4A4A;">Категория</label>
@@ -38,15 +38,17 @@
                 <!-- Фильтр по цене (от) -->
                 <div>
                     <label for="price_min" style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 8px; color: #4A4A4A;">Цена от (₽)</label>
-                    <input type="number" name="price_min" id="price_min" value="{{ request('price_min') }}" placeholder="0" min="0" step="100"
+                    <input type="text" name="price_min" id="price_min" value="{{ request('price_min') }}" placeholder="0" 
                            style="width: 100%; background: #FAF8F9; border: 1px solid #F0E4E8; border-radius: 12px; padding: 10px 14px; color: #1A1A1A;">
+                    <div id="price_min_error" style="color: #E53935; font-size: 0.7rem; margin-top: 4px; display: none;"></div>
                 </div>
                 
                 <!-- Фильтр по цене (до) -->
                 <div>
                     <label for="price_max" style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 8px; color: #4A4A4A;">Цена до (₽)</label>
-                    <input type="number" name="price_max" id="price_max" value="{{ request('price_max') }}" placeholder="Любая" min="0" step="100"
+                    <input type="text" name="price_max" id="price_max" value="{{ request('price_max') }}" placeholder="Любая" 
                            style="width: 100%; background: #FAF8F9; border: 1px solid #F0E4E8; border-radius: 12px; padding: 10px 14px; color: #1A1A1A;">
+                    <div id="price_max_error" style="color: #E53935; font-size: 0.7rem; margin-top: 4px; display: none;"></div>
                 </div>
                 
                 <!-- Фильтр по наличию -->
@@ -54,8 +56,8 @@
                     <label for="in_stock" style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 8px; color: #4A4A4A;">Наличие</label>
                     <div style="position: relative;">
                         <select name="in_stock" id="in_stock" style="width: 100%; background: #FAF8F9; border: 1px solid #F0E4E8; border-radius: 12px; padding: 10px 32px 10px 14px; color: #1A1A1A; transition: all 0.3s; appearance: none; -webkit-appearance: none; cursor: pointer;">
-                            <option value="">Все</option>
-                            <option value="1" {{ request('in_stock') == '1' ? 'selected' : '' }}>В наличии</option>
+                            <option value="">Все товары</option>
+                            <option value="1" {{ request('in_stock') == '1' ? 'selected' : '' }}>Только в наличии</option>
                             <option value="0" {{ request('in_stock') == '0' ? 'selected' : '' }}>Нет в наличии</option>
                         </select>
                         <svg style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; pointer-events: none; color: #D26F8B;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,10 +68,10 @@
                 
                 <!-- Кнопки -->
                 <div style="display: flex; gap: 12px;">
-                    <button type="submit" style="background: #D26F8B; color: #FFFFFF; font-weight: 600; padding: 10px 24px; border-radius: 40px; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(210, 111, 139, 0.25);">
+                    <button type="submit" style="background: #D26F8B; color: #FFFFFF; font-weight: 600; padding: 10px 24px; border-radius: 40px; border: none; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(210, 111, 139, 0.25); height: 42px; white-space: nowrap;">
                         Применить
                     </button>
-                    <a href="{{ route('catalog.index') }}" style="background: #FAF8F9; border: 1px solid #F0E4E8; color: #666666; font-weight: 500; padding: 10px 24px; border-radius: 40px; text-decoration: none; transition: all 0.3s;">
+                    <a href="{{ route('catalog.index') }}" style="background: #FAF8F9; border: 1px solid #F0E4E8; color: #666666; font-weight: 500; padding: 10px 24px; border-radius: 40px; text-decoration: none; transition: all 0.3s; text-align: center; display: inline-block; height: 42px; line-height: 22px; white-space: nowrap;">
                         Сбросить
                     </a>
                 </div>
@@ -91,13 +93,13 @@
                 @endif
                 @if(request('price_min'))
                     <span style="background: rgba(210, 111, 139, 0.1); color: #D26F8B; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
-                        Цена от: {{ number_format(request('price_min'), 0, ',', ' ') }} ₽
+                        Цена от: {{ number_format((float)request('price_min'), 0, ',', ' ') }} ₽
                         <a href="{{ request()->fullUrlWithQuery(['price_min' => null]) }}" style="color: #D26F8B; margin-left: 6px; text-decoration: none;">✕</a>
                     </span>
                 @endif
                 @if(request('price_max'))
                     <span style="background: rgba(210, 111, 139, 0.1); color: #D26F8B; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
-                        Цена до: {{ number_format(request('price_max'), 0, ',', ' ') }} ₽
+                        Цена до: {{ number_format((float)request('price_max'), 0, ',', ' ') }} ₽
                         <a href="{{ request()->fullUrlWithQuery(['price_max' => null]) }}" style="color: #D26F8B; margin-left: 6px; text-decoration: none;">✕</a>
                     </span>
                 @endif
@@ -109,7 +111,7 @@
                 @endif
                 @if(request('in_stock') === '0')
                     <span style="background: rgba(210, 111, 139, 0.1); color: #D26F8B; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
-                        Товаров нет в наличии
+                        Нет в наличии
                         <a href="{{ request()->fullUrlWithQuery(['in_stock' => null]) }}" style="color: #D26F8B; margin-left: 6px; text-decoration: none;">✕</a>
                     </span>
                 @endif
@@ -119,7 +121,7 @@
     
     <!-- Результаты -->
     @if($flowers->count() > 0)
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
             @foreach($flowers as $flower)
             <div class="product-card" style="background: #FFFFFF; border-radius: 20px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid #F0E4E8;">
                 <a href="{{ route('catalog.show', $flower) }}" style="display: block;">
@@ -130,7 +132,7 @@
                              onerror="this.src='{{ asset('img/placeholder.jpg') }}'">
                         @if(!$flower->in_stock)
                             <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;">
-                                <span style="padding: 8px 16px; background: rgba(229, 57, 53, 0.8); color: white; border-radius: 8px; font-weight: 600;">Нет в наличии</span>
+                                <span style="padding: 8px 16px; background: rgba(229, 57, 53, 0.9); color: white; border-radius: 8px; font-weight: 600;">Нет в наличии</span>
                             </div>
                         @endif
                     </div>
@@ -143,23 +145,20 @@
                         @endif
                     </div>
                     <a href="{{ route('catalog.show', $flower) }}" style="text-decoration: none;">
-                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 8px; color: #1A1A1A; transition: color 0.3s;">{{ $flower->name }}</h3>
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 16px; color: #1A1A1A; transition: color 0.3s; line-height: 1.4;">{{ $flower->name }}</h3>
                     </a>
-                    <p style="color: #666666; font-size: 0.875rem; margin-bottom: 16px; line-height: 1.4;">
-                        {{ Str::limit($flower->description, 70) }}
-                    </p>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 1.25rem; font-weight: bold; color: #D26F8B;">{{ number_format($flower->price, 0, ',', ' ') }} ₽</span>
+                        <span style="font-size: 1.5rem; font-weight: bold; color: #D26F8B;">{{ number_format($flower->price, 0, ',', ' ') }} ₽</span>
                         @if($flower->in_stock)
                             <form action="{{ route('cart.add', $flower) }}" method="POST" style="display: inline;">
                                 @csrf
                                 <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="cart-button" style="border: 2px solid #D26F8B; color: #D26F8B; background: transparent; padding: 6px 16px; border-radius: 30px; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.3s;">
+                                <button type="submit" class="cart-button" style="border: 2px solid #D26F8B; color: #D26F8B; background: transparent; padding: 8px 20px; border-radius: 30px; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.3s;">
                                     В корзину
                                 </button>
                             </form>
                         @else
-                            <button disabled style="border: 1px solid #E8D0D8; color: #AAAAAA; background: transparent; padding: 6px 16px; border-radius: 30px; font-size: 0.875rem; cursor: not-allowed;">
+                            <button disabled style="border: 1px solid #E8D0D8; color: #AAAAAA; background: transparent; padding: 8px 20px; border-radius: 30px; font-size: 0.875rem; cursor: not-allowed;">
                                 Нет в наличии
                             </button>
                         @endif
@@ -185,21 +184,13 @@
                     @endif
 
                     {{-- Pagination Elements --}}
-                    @foreach ($flowers->links()->elements as $element)
-                        @if (is_string($element))
-                            <span style="padding: 8px 12px; color: #AAAAAA;">{{ $element }}</span>
-                        @endif
-
-                        @if (is_array($element))
-                            @foreach ($element as $page => $url)
-                                @if ($page == $flowers->currentPage())
-                                    <span style="padding: 8px 16px; background: #D26F8B; color: #FFFFFF; border-radius: 8px; font-weight: 600;">{{ $page }}</span>
-                                @else
-                                    <a href="{{ $url }}" style="padding: 8px 16px; background: #FFFFFF; border: 1px solid #F0E4E8; border-radius: 8px; color: #4A4A4A; text-decoration: none; transition: all 0.3s;">
-                                        {{ $page }}
-                                    </a>
-                                @endif
-                            @endforeach
+                    @foreach ($flowers->getUrlRange(1, $flowers->lastPage()) as $page => $url)
+                        @if ($page == $flowers->currentPage())
+                            <span style="padding: 8px 16px; background: #D26F8B; color: #FFFFFF; border-radius: 8px; font-weight: 600;">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}" style="padding: 8px 16px; background: #FFFFFF; border: 1px solid #F0E4E8; border-radius: 8px; color: #4A4A4A; text-decoration: none; transition: all 0.3s;">
+                                {{ $page }}
+                            </a>
                         @endif
                     @endforeach
 
@@ -218,14 +209,14 @@
         </div>
     @else
         <!-- Нет результатов -->
-        <div style="text-align: center; padding: 80px 20px; background: #FFFFFF; border-radius: 24px; border: 1px solid #F0E4E8;">
+        <div style="text-align: center; padding: 60px 20px; background: #FFFFFF; border-radius: 24px; border: 1px solid #F0E4E8;">
             <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#D26F8B" stroke-width="1" style="margin-bottom: 20px; opacity: 0.5;">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <h3 style="font-size: 1.5rem; color: #1A1A1A; margin-bottom: 8px;">Ничего не найдено</h3>
             <p style="color: #AAAAAA; margin-bottom: 24px;">Попробуйте изменить параметры фильтрации</p>
             <a href="{{ route('catalog.index') }}" style="background: #D26F8B; color: #FFFFFF; padding: 10px 24px; border-radius: 40px; text-decoration: none; display: inline-block;">
-                Сбросить фильтры
+                Сбросить все фильтры
             </a>
         </div>
     @endif
@@ -237,6 +228,10 @@
         width: 100%;
         margin: 0 auto;
         padding: 0 40px;
+    }
+    
+    .product-card {
+        transition: all 0.3s ease;
     }
     
     .product-card:hover {
@@ -265,24 +260,196 @@
         box-shadow: 0 0 0 3px rgba(210, 111, 139, 0.15);
     }
     
+    /* Стиль для полей с ошибкой */
+    .price-input-error {
+        border-color: #E53935 !important;
+        background-color: #FFF5F5 !important;
+    }
+    
+    /* Адаптивность фильтров */
+    @media (max-width: 1200px) {
+        .filter-grid {
+            grid-template-columns: repeat(4, 1fr) auto !important;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .filter-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+    }
+    
     @media (max-width: 768px) {
         .container {
             padding: 0 20px;
         }
         
-        h1 {
-            font-size: 2rem !important;
+        .product-card {
+            margin: 0;
         }
         
-        .product-card {
-            margin: 0 0 20px 0;
+        /* Фильтры на мобильных */
+        [style*="grid-template-columns: repeat(4, 1fr) auto"] {
+            grid-template-columns: 1fr !important;
+            gap: 15px !important;
+        }
+        
+        [style*="display: flex; gap: 12px;"] {
+            justify-content: stretch;
+        }
+        
+        [style*="display: flex; gap: 12px;"] button,
+        [style*="display: flex; gap: 12px;"] a {
+            flex: 1;
+            text-align: center;
         }
     }
     
     @media (max-width: 640px) {
-        .filter-form-grid {
-            grid-template-columns: 1fr !important;
+        .container {
+            padding: 0 15px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .container {
+            padding: 0 15px;
         }
     }
 </style>
+
+<script>
+    // Функция валидации цены
+    function isValidNumber(value) {
+        if (!value || value.trim() === '') return true; // Пустое значение - валидно
+        const num = parseFloat(value.toString().replace(',', '.'));
+        return !isNaN(num) && isFinite(num) && num >= 0;
+    }
+    
+    function validatePriceFields() {
+        let isValid = true;
+        
+        const priceMin = document.getElementById('price_min');
+        const priceMax = document.getElementById('price_max');
+        const priceMinError = document.getElementById('price_min_error');
+        const priceMaxError = document.getElementById('price_max_error');
+        
+        // Валидация цены ОТ
+        if (priceMin && priceMin.value.trim() !== '') {
+            if (!isValidNumber(priceMin.value)) {
+                priceMinError.textContent = '❌ Введите корректное число (например: 100, 1500, 12.5)';
+                priceMinError.style.display = 'block';
+                priceMin.classList.add('price-input-error');
+                isValid = false;
+            } else {
+                priceMinError.style.display = 'none';
+                priceMin.classList.remove('price-input-error');
+                // Округляем до целого числа
+                const num = parseFloat(priceMin.value.toString().replace(',', '.'));
+                priceMin.value = Math.floor(num);
+            }
+        } else {
+            priceMinError.style.display = 'none';
+            priceMin.classList.remove('price-input-error');
+        }
+        
+        // Валидация цены ДО
+        if (priceMax && priceMax.value.trim() !== '') {
+            if (!isValidNumber(priceMax.value)) {
+                priceMaxError.textContent = '❌ Введите корректное число (например: 100, 1500, 12.5)';
+                priceMaxError.style.display = 'block';
+                priceMax.classList.add('price-input-error');
+                isValid = false;
+            } else {
+                priceMaxError.style.display = 'none';
+                priceMax.classList.remove('price-input-error');
+                // Округляем до целого числа
+                const num = parseFloat(priceMax.value.toString().replace(',', '.'));
+                priceMax.value = Math.floor(num);
+            }
+        } else {
+            priceMaxError.style.display = 'none';
+            priceMax.classList.remove('price-input-error');
+        }
+        
+        // Дополнительная проверка: цена ОТ не больше цены ДО
+        if (isValid && priceMin && priceMax && priceMin.value && priceMax.value) {
+            const minVal = parseFloat(priceMin.value);
+            const maxVal = parseFloat(priceMax.value);
+            if (minVal > maxVal) {
+                priceMaxError.textContent = '❌ Цена "до" не может быть меньше цены "от"';
+                priceMaxError.style.display = 'block';
+                priceMax.classList.add('price-input-error');
+                isValid = false;
+            }
+        }
+        
+        if (!isValid) {
+            // Показываем всплывающее уведомление об ошибке
+            if (typeof Toast !== 'undefined') {
+                Toast.show('Пожалуйста, исправьте ошибки в полях с ценой', 'error');
+            } else {
+                alert('Пожалуйста, исправьте ошибки в полях с ценой');
+            }
+        }
+        
+        return isValid;
+    }
+    
+    // Очистка ошибок при вводе
+    document.addEventListener('DOMContentLoaded', function() {
+        const priceMinInput = document.getElementById('price_min');
+        const priceMaxInput = document.getElementById('price_max');
+        const priceMinError = document.getElementById('price_min_error');
+        const priceMaxError = document.getElementById('price_max_error');
+        
+        if (priceMinInput) {
+            priceMinInput.addEventListener('input', function() {
+                priceMinError.style.display = 'none';
+                priceMinInput.classList.remove('price-input-error');
+            });
+        }
+        
+        if (priceMaxInput) {
+            priceMaxInput.addEventListener('input', function() {
+                priceMaxError.style.display = 'none';
+                priceMaxInput.classList.remove('price-input-error');
+            });
+        }
+        
+        // Функция для очистки значения от лишних символов
+        function cleanPriceValue(value) {
+            if (!value) return '';
+            let cleaned = String(value).replace(/[^\d.,]/g, '');
+            cleaned = cleaned.replace(',', '.');
+            const parts = cleaned.split('.');
+            if (parts.length > 2) {
+                cleaned = parts[0] + '.' + parts.slice(1).join('');
+            }
+            return cleaned;
+        }
+        
+        if (priceMinInput) {
+            priceMinInput.addEventListener('blur', function(e) {
+                const raw = e.target.value;
+                const cleaned = cleanPriceValue(raw);
+                if (cleaned && isValidNumber(cleaned)) {
+                    const num = parseFloat(cleaned);
+                    e.target.value = Math.floor(num);
+                }
+            });
+        }
+        
+        if (priceMaxInput) {
+            priceMaxInput.addEventListener('blur', function(e) {
+                const raw = e.target.value;
+                const cleaned = cleanPriceValue(raw);
+                if (cleaned && isValidNumber(cleaned)) {
+                    const num = parseFloat(cleaned);
+                    e.target.value = Math.floor(num);
+                }
+            });
+        }
+    });
+</script>
 @endsection
